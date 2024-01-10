@@ -23,7 +23,7 @@ if "file_name" not in st.session_state:
     st.session_state.file_name = ""
 
 
-def loader():
+def document_loader():
     name = st.session_state.file_name
     file_path = f"test/{name}"
     #   directory = os.getcwd()  # Get the current working directory
@@ -34,7 +34,7 @@ def loader():
     return documents
 
 
-def split_and_embed(documents):
+def split_documents(documents):
 
     # split it into chunks
     text_splitter = CharacterTextSplitter(chunk_size=250, chunk_overlap=0)
@@ -45,19 +45,23 @@ def split_and_embed(documents):
     # metadata only supports primitive types such as str, int, etc
     for doc in docs:
         doc.metadata["languages"] = "eng"
-
+        
+    return docs
+  
+  
+def get_embedding():
     embedding_function = SentenceTransformerEmbeddings(
         model_name="all-MiniLM-L6-v2")
 
     return embedding_function
 
 
-def set_db(uploaded_file):
-    documents = loader()
-    # embeddings = split_and_embed(uploaded_file)
-    embeddings = split_and_embed(documents)
+def set_db():
+    documents = document_loader()
+    docs = split_documents(documents)
+    embeddings = get_embedding()
 
-    db = Chroma().from_documents(documents=documents, embedding=embeddings,
+    db = Chroma().from_documents(documents=docs, embedding=embeddings,
                                  persist_directory="/tmp/brcl_03", collection_metadata={"hnsw:space": "cosine"})
     places = set([doc.metadata["page_name"] for doc in documents])
     # places = set({'LIQB', 'OV1', 'CR8', 'CONTENTS', 'Catalog', 'CCR7', 'MR2-B', 'LIQ1', 'KM1'})
@@ -142,7 +146,7 @@ def file_upload_form():
                     # Process and save the uploaded file to the desired location
                     # process_and_save_file(uploaded_file, save_directory)
 
-                    set_db(uploaded_file)
+                    set_db()
                 else:
                     st.write(
                         f"Supported file types are {', '.join(supported_file_types)}")
