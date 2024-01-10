@@ -6,3 +6,4 @@ openai
 sentence-transformers
 unstructured
 openpyxl
+pysqlite-binary
