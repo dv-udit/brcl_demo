@@ -43,8 +43,8 @@ def split_and_embed(documents):
 
     # Fix: was throwing error before
     # metadata only supports primitive types such as str, int, etc
-    # for doc in docs:
-    #     doc.metadata["languages"] = "eng"
+    for doc in docs:
+        doc.metadata["languages"] = "eng"
 
     embedding_function = SentenceTransformerEmbeddings(
         model_name="all-MiniLM-L6-v2")
